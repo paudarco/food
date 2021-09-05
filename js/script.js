@@ -275,10 +275,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 4000);
     }
 
-    fetch('http://localhost:3000/menu')
-    .then(data => data.json())
-    .then(res => console.log(res)); 
-
 
     // Slider
 
@@ -290,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
           slidesWrapper = document.querySelector('.offer__slider-wrapper'),
           slidesField = slidesWrapper.querySelector('.offer__slider-inner'),
           offerSlides = slidesWrapper.querySelectorAll('.offer__slide'),
-          width = window.getComputedStyle(slidesWrapper).width;
+          width = +window.getComputedStyle(slidesWrapper).width.replace(/\D/g, '');
 
     let slideIndex = 1;
     let offset = 0;
@@ -302,8 +298,31 @@ document.addEventListener('DOMContentLoaded', () => {
     slidesField.style.transition = '.5s';
     
     offerSlides.forEach(slide => {
-        slide.style.width = width;  
+        slide.style.width = width + 'px';  
     });
+
+    slider.style.position = 'relative';
+
+    const indicators = document.createElement('ol');
+    indicators.classList.add('carousel-indicators');
+    slider.append(indicators);
+
+    for (let i = 0; i < offerSlides.length; i++) {
+        const dot = document.createElement('li');
+        dot.classList.add('dot');
+        dot.setAttribute('data-slide-to', i);
+        indicators.append(dot);
+    }
+
+    const dots = indicators.querySelectorAll('.dot')
+
+    function activeDot(num) {
+        dots.forEach(dot => dot.classList.remove('active'));
+
+        dots[num].classList.add('active');
+    }
+
+    activeDot(offset);
     
     if (offset < 10) {
         currentSlide.textContent = `0${offset + 1}`;
@@ -330,7 +349,9 @@ document.addEventListener('DOMContentLoaded', () => {
             currentSlide.textContent = offset + 1;
         }
 
-        slidesField.style.transform = `translateX(-${offset * width.slice(0, width.length - 2)}px)`
+        activeDot(offset);
+
+        slidesField.style.transform = `translateX(-${offset * width}px)`
     })
 
     offerPrev.addEventListener('click', () => {
@@ -346,61 +367,44 @@ document.addEventListener('DOMContentLoaded', () => {
             currentSlide.textContent = offset + 1;
         }
 
-        slidesField.style.transform = `translateX(-${offset * width.slice(0, width.length - 2)}px)`
+        activeDot(offset);
+
+        slidesField.style.transform = `translateX(-${offset * width}px)`
+    })
+
+    slider.addEventListener('click', (event) => {
+        // dots.forEach((dot, i) => {
+        //     if (event.target == dot) {
+        //         offset = i;
+
+        //         if (offset < 9) {
+        //             currentSlide.textContent = `0${offset + 1}`;
+        //         } else {
+        //             currentSlide.textContent = offset + 1;
+        //         }
+
+                // activeDot(offset);
+
+                // slidesField.style.transform = `translateX(-${offset * width.slice(0, width.length - 2)}px)`;
+        //     }
+        // });
+
+        if (event.target.hasAttribute('data-slide-to')) {
+            offset = +event.target.getAttribute('data-slide-to');
+
+            if (offset < 9) {
+                currentSlide.textContent = `0${offset + 1}`;
+            } else {
+                currentSlide.textContent = offset + 1;
+            }
+
+            activeDot(offset);
+
+            slidesField.style.transform = `translateX(-${offset * width}px)`;
+        }
     })
 
     
 
-    // loadSlide(slideIndex);
-
-    // function loadSlide(num) {
-    //     if (num > offerSlides.length) {
-    //         slideIndex = 1;
-    //     } else if (num < 1) {
-    //         slideIndex = offerSlides.length;
-    //     } else {
-    //         slideIndex = num;
-    //     }
-        
-    //     slidesField.style.marginLeft = -100 * (slideIndex - 1) + '%';
     
-    //     if (slideIndex < 10) {
-    //         currentSlide.textContent = `0${slideIndex}`;
-    //     } else {
-    //         currentSlide.textContent = slideIndex;
-    //     }
-    // }
-
-    // function loadSlide(num) {
-    //     if (num > offerSlides.length) {
-    //         slideIndex = 1;
-    //     } else if (num < 1) {
-    //         slideIndex = offerSlides.length;
-    //     } else {
-    //         slideIndex = num;
-    //     }
-        
-    //     offerSlides.forEach(slide => slide.style.display = 'none')
-    //     offerSlides[slideIndex - 1].style.display = '';
-    
-    //     if (slideIndex < 10) {
-    //         currentSlide.textContent = `0${slideIndex}`;
-    //     } else {
-    //         currentSlide.textContent = slideIndex;
-    //     }
-    // }
-
-    // function plusSlides(num) {
-    //     loadSlide(slideIndex + num)
-    // }
-
-
-    
-    // offerPrev.addEventListener('click', () => {
-    //     plusSlides(-1);
-    // });
-
-    // offerNext.addEventListener('click', () => {
-    //     plusSlides(1);
-    // });
 });
